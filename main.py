@@ -242,7 +242,7 @@ def show_list(report: str, min_days: int):
         print(f"{cp[:44]:<45} {num[:17]:<18} {days:>5} {cnt:>6} {total:>14,.2f}".replace(",", " "))
     print()
     print("Чтобы сделать документ по одному из них:")
-    print('  python main.py pretenzii --report <файл> --contragent "СтальТрейд" --contract "020126/2"')
+    print('  python main.py pretenzii --report <файл> --contragent "СтальТрейд" --contract "020726/2"')
     return rows
 
 
@@ -328,7 +328,7 @@ if __name__ == "__main__":
     ap.add_argument("--contragent", default=None,
                     help='сделать документ только по одному покупателю (часть названия, напр. "СтальТрейд")')
     ap.add_argument("--contract", default=None,
-                    help='только по одному договору (часть номера, напр. "020126/2")')
+                    help='только по одному договору (часть номера, напр. "020726/2")')
     ap.add_argument("--ready-for-suit", action="store_true",
                     help="только те, у кого претензия отправлена, срок вышел, оплаты нет")
     ap.add_argument("--sent-date", default=None,
