@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Претензии и иски — ООО «Ромашка»</title>
+<style>
+  :root{
+    --bg:#f1f4f8; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e3e8ef;
+    --brand:#123f63; --brand-2:#1a5c8f; --brand-ink:#ffffff;
+    --danger:#b42318; --danger-bg:#fef3f2; --warn:#b54708; --warn-bg:#fffaeb;
+    --ok:#027a48; --ok-bg:#ecfdf3; --row-hover:#f7f9fc; --sel:#eaf2fa;
+    --shadow:0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+    --radius:12px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0d1219; --card:#151c26; --ink:#e7edf5; --muted:#94a3b8; --line:#25303e;
+      --brand:#12293f; --brand-2:#1d5580; --danger:#ff8b7e; --danger-bg:#2a1512;
+      --warn:#f5c264; --warn-bg:#2a1f0c; --ok:#6ee7b7; --ok-bg:#0d241b;
+      --row-hover:#1a222d; --sel:#1b2b3a;
+      --shadow:0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink); font:15px/1.5 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    padding-bottom:92px;
+  }
+  a{color:var(--brand-2)}
+
+  /* ---------- шапка ---------- */
+  header{
+    background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    color:var(--brand-ink); padding:18px 24px; display:flex; align-items:center; gap:16px;
+  }
+  header .mark{
+    width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.14);
+    display:grid;place-items:center;font-size:20px;flex:none;
+  }
+  header h1{margin:0;font-size:18px;font-weight:650;letter-spacing:.2px}
+  header p{margin:2px 0 0;font-size:13px;opacity:.8}
+
+  main{max-width:1280px;margin:0 auto;padding:20px 24px 0}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px}
+  .card > .head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .card > .head h2{margin:0;font-size:14px;font-weight:650;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  .card > .body{padding:16px 18px}
+
+  .step{
+    width:22px;height:22px;border-radius:50%;background:var(--brand-2);color:#fff;
+    display:grid;place-items:center;font-size:12px;font-weight:700;flex:none;
+  }
+
+  /* ---------- поля ---------- */
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field.grow{flex:1;min-width:260px}
+  label{font-size:12px;color:var(--muted);font-weight:600}
+  input[type=text],input[type=number],input[type=search]{
+    font:inherit;color:var(--ink);background:var(--card);
+    border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;
+  }
+  input:focus{outline:2px solid var(--brand-2);outline-offset:-1px;border-color:transparent}
+
+  button{
+    font:inherit;font-weight:600;border-radius:9px;padding:9px 15px;cursor:pointer;
+    border:1px solid var(--line);background:var(--card);color:var(--ink);
+    transition:.12s background,.12s border-color,.12s transform;
+  }
+  button:hover:not(:disabled){background:var(--row-hover)}
+  button:active:not(:disabled){transform:translateY(1px)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  button.primary{background:var(--brand-2);border-color:var(--brand-2);color:#fff}
+  button.primary:hover:not(:disabled){background:var(--brand)}
+  button.ghost{background:transparent}
+  .linklike{background:none;border:none;color:var(--brand-2);padding:4px 2px;text-decoration:underline}
+
+  /* ---------- панель таблицы ---------- */
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line)}
+  .toolbar .spacer{flex:1}
+  .chip{
+    border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 13px;
+    font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;
+  }
+  .chip[aria-pressed="true"]{background:var(--sel);border-color:var(--brand-2);color:var(--brand-2)}
+  .counter{font-size:13px;color:var(--muted)}
+
+  /* ---------- таблица ---------- */
+  .tablewrap{overflow:auto;max-height:calc(100vh - 430px);min-height:220px}
+  table{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
+  thead th{
+    position:sticky;top:0;z-index:1;background:var(--card);text-align:left;
+    padding:10px 12px;font-size:12px;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line);
+    white-space:nowrap;user-select:none;
+  }
+  thead th.sortable{cursor:pointer}
+  thead th.sortable:hover{color:var(--ink)}
+  thead th .arrow{opacity:.4;font-size:10px}
+  tbody td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:hover{background:var(--row-hover)}
+  tbody tr.on{background:var(--sel)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.name{font-weight:600}
+  td.check,th.check{width:38px;text-align:center}
+  input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand-2);cursor:pointer}
+
+  .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .tag.exch{background:var(--sel);color:var(--brand-2)}
+  .tag.dir{background:var(--ok-bg);color:var(--ok)}
+  .tag.risk{background:var(--danger-bg);color:var(--danger)}
+  .tag.nodata{background:var(--warn-bg);color:var(--warn)}
+  .tag.tiny{background:var(--warn-bg);color:var(--warn)}
+  .tag.st-none{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+  .tag.st-made{background:var(--sel);color:var(--brand-2)}
+  .tag.st-wait{background:var(--warn-bg);color:var(--warn)}
+  .tag.st-ready{background:var(--ok-bg);color:var(--ok);box-shadow:inset 0 0 0 1px currentColor}
+  .tag.st-paid{background:var(--ok-bg);color:var(--ok)}
+  .tag.st-part{background:var(--warn-bg);color:var(--warn)}
+  .tag.st-suit{background:var(--sel);color:var(--muted)}
+  .sub{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+  tr.risky td:first-child{box-shadow:inset 3px 0 0 var(--danger)}
+
+  .empty{padding:44px 18px;text-align:center;color:var(--muted)}
+
+  /* ---------- нижняя панель ---------- */
+  .actionbar{
+    position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+    box-shadow:0 -4px 16px rgba(16,24,40,.07);padding:14px 24px;z-index:5;
+  }
+  .actionbar .inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .sum{font-size:13px;color:var(--muted)}
+  .sum b{color:var(--ink);font-size:15px}
+
+  /* ---------- модальное окно ---------- */
+  .veil{position:fixed;inset:0;background:rgba(10,16,24,.55);display:none;place-items:center;z-index:20;padding:20px}
+  .veil.show{display:grid}
+  .modal{background:var(--card);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.3);width:min(760px,100%);max-height:86vh;display:flex;flex-direction:column}
+  .modal h3{margin:0;font-size:17px}
+  .modal .mhead{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .modal .mbody{padding:18px 20px;overflow:auto}
+  .modal .mfoot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+  .spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--brand-2);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .filelist{list-style:none;margin:0;padding:0;font-size:14px}
+  .filelist li{padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px}
+  .filelist li:last-child{border-bottom:none}
+  .filelist .fname{color:var(--muted);font-size:12.5px;word-break:break-all}
+  .paygrp{margin-top:10px}
+  .paygrp > h4{margin:0 0 2px;font-size:12px;font-weight:700;letter-spacing:.4px;
+    text-transform:uppercase;color:var(--muted)}
+  .paygrp.alien > summary{color:var(--warn);cursor:pointer;list-style:none;
+    display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;
+    border:1px solid var(--line);background:var(--warn-bg);
+    font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+    user-select:none}
+  .paygrp.alien > summary::-webkit-details-marker{display:none}
+  .paygrp.alien > summary::after{content:'▾';font-size:11px;opacity:.8}
+  .paygrp.alien[open] > summary::after{content:'▴'}
+  .paygrp.alien > summary:hover{filter:brightness(.97)}
+  .paygrp.alien > summary:focus-visible{outline:2px solid var(--brand-2);outline-offset:2px}
+  .paygrp .why{font-size:12.5px;color:var(--muted);margin:0 0 4px}
+  .paygrp.alien li{opacity:.75}
+  .payempty{font-size:13px;color:var(--muted);padding:8px 0}
+
+  .notice{border-radius:10px;padding:12px 14px;font-size:13.5px;margin-bottom:12px;line-height:1.45}
+  .notice.warn{background:var(--warn-bg);color:var(--warn)}
+  .notice.err{background:var(--danger-bg);color:var(--danger)}
+  .notice.ok{background:var(--ok-bg);color:var(--ok)}
+
+  #toast{
+    position:fixed;bottom:104px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#111827;color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;
+    opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:80vw;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.bad{background:var(--danger)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mark">§</div>
+  <div>
+    <h1>Претензии и исковые заявления</h1>
+    <p>ООО «Ромашка» · работа с просроченной дебиторской задолженностью</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ШАГ 1 -->
+  <section class="card">
+    <div class="head"><span class="step">1</span><h2>Отчёт по задолженности</h2></div>
+    <div class="body">
+      <div class="row">
+        <div class="field grow">
+          <label for="report">Файл отчёта (выгрузка «Отчёт по ДЗ» из 1С)</label>
+          <input type="text" id="report" placeholder="D:\путь\Отчет.xls">
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button id="pick">Выбрать файл…</button>
+        </div>
+        <div class="field">
+          <label for="mindays">Просрочка от, дней</label>
+          <input type="number" id="mindays" value="5" min="1" max="3650" style="width:120px">
+        </div>
+        <div class="field">
+          <label for="asof">Считать на дату</label>
+          <input type="text" id="asof" style="width:140px" placeholder="ДД.ММ.ГГГГ">
+          <div id="asofhint" style="display:none;font-size:11.5px;color:var(--warn);max-width:220px;line-height:1.3"></div>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button id="uprate" title="Скачать историю ставки рефинансирования с сайта Национального банка">Обновить ставку НБ РБ</button>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="primary" id="load">Показать должников</button>
+        </div>
+      </div>
+      <input type="file" id="file" accept=".xls,.xlsx,.csv" hidden>
+      <div id="loadmsg" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- РЕКВИЗИТЫ ИЗ ДОГОВОРА -->
+  <section class="card">
+    <div class="head">
+      <span class="step">+</span>
+      <h2>Реквизиты покупателей из договора</h2>
+    </div>
+    <div class="body">
+      <div class="row" style="align-items:center">
+        <button id="pickcontract">Загрузить договор…</button>
+        <span class="counter">Программа сама вытащит из него УНП, адрес, банк и счёт
+          и впишет в справочник. Понимает .docx, .doc, .rtf и .pdf с текстом
+          (скан-картинку — нет).</span>
+      </div>
+      <input type="file" id="contractfile" accept=".docx,.doc,.rtf,.pdf" hidden>
+      <div id="contractmsg" style="margin-top:10px"></div>
+      <div id="contractform" style="display:none;margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- ЧАСТИЧНЫЕ ОПЛАТЫ -->
+  <section class="card">
+    <div class="head">
+      <span class="step">+</span>
+      <h2>Частичные оплаты по накладным</h2>
+    </div>
+    <div class="body">
+      <p class="counter" style="margin-bottom:12px">
+        В отчёте по ДЗ виден только остаток долга. Если покупатель гасил его частями,
+        внесите платежи сюда — пеня на каждую погашенную часть будет начислена
+        за свой срок, до дня оплаты.
+      </p>
+      <div class="row">
+        <div class="field" style="min-width:230px;flex:1">
+          <label>Договор</label>
+          <select id="payrow" style="font:inherit;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink)"></select>
+        </div>
+        <div class="field" style="min-width:180px">
+          <label>Накладная</label>
+          <select id="paydoc" style="font:inherit;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink)"></select>
+        </div>
+        <div class="field" style="width:140px">
+          <label>Дата оплаты</label>
+          <input type="text" id="paydate" placeholder="ДД.ММ.ГГГГ">
+        </div>
+        <div class="field" style="width:130px">
+          <label>Сумма, руб.</label>
+          <input type="text" id="paysum" placeholder="3 000,00">
+        </div>
+        <div class="field" style="width:110px">
+          <label>№ п/п</label>
+          <input type="text" id="paypp" placeholder="9715">
+        </div>
+        <div class="field" style="min-width:200px;flex:1">
+          <label>Назначение платежа</label>
+          <input type="text" id="paypurpose" placeholder="ЗА МЕТАЛЛОПРОКАТ СОГЛАСНО…">
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="primary" id="payadd">Внести оплату</button>
+        </div>
+      </div>
+      <div id="paymsg" style="margin-top:10px"></div>
+      <div id="paylist" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="card">
+    <div class="head"><span class="step">2</span><h2>Кому готовим документы</h2></div>
+
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Поиск по покупателю или номеру договора" style="width:320px">
+      <button class="chip" id="f-all" aria-pressed="true">Все</button>
+      <button class="chip" id="f-clean" aria-pressed="false">Без предупреждений</button>
+      <button class="chip" id="f-ready" aria-pressed="false">Готовы к иску</button>
+      <button class="chip" id="f-nodata" aria-pressed="false">Без реквизитов</button>
+      <button class="chip" id="f-risk" aria-pressed="false">Срок давности &gt; 3 лет</button>
+      <span class="spacer"></span>
+      <span class="counter" id="counter">—</span>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="check"><input type="checkbox" id="all" title="Отметить все показанные"></th>
+            <th class="sortable" data-k="cp">Покупатель <span class="arrow"></span></th>
+            <th class="sortable" data-k="contract">Договор <span class="arrow"></span></th>
+            <th>Тип</th>
+            <th class="sortable num" data-k="days">Просрочка, дней <span class="arrow"></span></th>
+            <th class="num">Накладных</th>
+            <th class="sortable num" data-k="debt">Долг, руб. <span class="arrow"></span></th>
+            <th class="sortable" data-k="status">Претензия <span class="arrow"></span></th>
+            <th>Внимание</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="empty">Укажите файл отчёта и нажмите «Показать должников».</div>
+    </div>
+  </section>
+</main>
+
+<!-- ШАГ 3 -->
+<div class="actionbar">
+  <div class="inner">
+    <span class="step">3</span>
+    <span class="sum" id="sum">Ничего не отмечено</span>
+    <span style="flex:1"></span>
+    <button class="ghost" id="marksent">Отметить отправленными</button>
+    <button class="ghost" id="openfolder">Папка с документами</button>
+    <button id="mkpret" disabled>Сделать претензии</button>
+    <button class="primary" id="mkisk" disabled>Сделать иски</button>
+  </div>
+</div>
+
+<div class="veil" id="veil">
+  <div class="modal">
+    <div class="mhead"><h3 id="mtitle">—</h3></div>
+    <div class="mbody" id="mbody"></div>
+    <div class="mfoot" id="mfoot"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const money = n => Number(n).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const plural = (n,a,b,c) => { const m=n%100, k=n%10;
+  return n+' '+(m>10&&m<20 ? c : k===1 ? a : k>=2&&k<=4 ? b : c); };
+
+let rows = [], picked = new Set(), filter = 'all', sortKey = null, sortRev = false;
+
+const ST = {
+  'не формировалась'         : 'st-none',
+  'сформирована'             : 'st-made',
+  'ждём ответа'              : 'st-wait',
+  'срок истёк — можно в суд' : 'st-ready',
+  'оплачено'                 : 'st-paid',
+  'оплачено частично'        : 'st-part',
+  'иск сформирован'          : 'st-suit',
+};
+
+function toast(text, bad){
+  const t = $('#toast'); t.textContent = text; t.className = 'show' + (bad?' bad':'');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.className='', 3200);
+}
+const keyOf = r => r.cp + '\u0000' + r.contract + '\u0000' + r.contract_date;
+
+function visible(){
+  const q = $('#search').value.trim().toLowerCase();
+  return rows.filter(r => {
+    if (q && !r.cp.toLowerCase().includes(q) && !r.contract.toLowerCase().includes(q)) return false;
+    if (filter === 'clean'  && (r.nodata || r.risk || r.tiny)) return false;
+    if (filter === 'ready'  && !r.ready) return false;
+    if (filter === 'nodata' && !r.nodata) return false;
+    if (filter === 'risk'   && !r.risk) return false;
+    return true;
+  });
+}
+
+function render(){
+  const list = visible(), tb = $('#tbody');
+  tb.innerHTML = '';
+  $('#empty').style.display = list.length ? 'none' : 'block';
+  if (!rows.length) $('#empty').textContent = 'Укажите файл отчёта и нажмите «Показать должников».';
+  else if (!list.length) $('#empty').textContent = 'Под этот отбор ничего не подходит.';
+
+  for (const r of list){
+    const k = keyOf(r), on = picked.has(k);
+    const tr = document.createElement('tr');
+    tr.className = (r.risk ? 'risky ' : '') + (on ? 'on' : '');
+    const marks = [];
+    if (r.risk)   marks.push('<span class="tag risk">срок давности &gt; 3 лет</span>');
+    if (r.nodata) marks.push('<span class="tag nodata">нет реквизитов</span>');
+    if (r.tiny)   marks.push('<span class="tag tiny">мелкая сумма</span>');
+    const stCell = `<span class="tag ${ST[r.status] || 'st-none'}">${esc(r.status)}</span>` +
+                   (r.deadline ? `<span class="sub">срок ответа ${esc(r.deadline)}</span>` : '');
+    tr.innerHTML =
+      `<td class="check"><input type="checkbox" ${on?'checked':''}></td>` +
+      `<td class="name">${esc(r.cp)}</td>` +
+      `<td>${esc(r.contract)}</td>` +
+      `<td><span class="tag ${r.type==='Биржевой'?'exch':'dir'}">${r.type}</span></td>` +
+      `<td class="num">${r.days}</td>` +
+      `<td class="num">${r.docs}</td>` +
+      `<td class="num">${money(r.debt)}</td>` +
+      `<td title="${esc(r.hint||'')}">${stCell}</td>` +
+      `<td>${marks.join(' ') || ''}</td>`;
+    const toggle = () => { picked.has(k) ? picked.delete(k) : picked.add(k); render(); };
+    tr.querySelector('input').onclick = e => { e.stopPropagation(); toggle(); };
+    tr.onclick = toggle;
+    tb.appendChild(tr);
+  }
+
+  const shownKeys = list.map(keyOf);
+  $('#all').checked = shownKeys.length > 0 && shownKeys.every(k => picked.has(k));
+  $('#counter').textContent = rows.length
+    ? `показано ${list.length} из ${rows.length} · долг всего ${money(rows.reduce((s,r)=>s+r.debt,0))} руб.`
+    : '—';
+
+  const sel = rows.filter(r => picked.has(keyOf(r)));
+  const sum = sel.reduce((s,r)=>s+r.debt,0);
+  $('#sum').innerHTML = sel.length
+    ? `Отмечено <b>${plural(sel.length,'договор','договора','договоров')}</b> · долг <b>${money(sum)} руб.</b>`
+    : 'Ничего не отмечено';
+  $('#mkpret').disabled = $('#mkisk').disabled = !sel.length;
+
+  document.querySelectorAll('thead th.sortable').forEach(th => {
+    th.querySelector('.arrow').textContent = th.dataset.k === sortKey ? (sortRev?'▼':'▲') : '';
+  });
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function post(url, body){
+  const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'},
+                             body: JSON.stringify(body||{})});
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+
+async function load(){
+  const btn = $('#load'); btn.disabled = true; btn.textContent = 'Читаю…';
+  $('#loadmsg').innerHTML = '';
+  try{
+    const j = await post('/api/load', {report: $('#report').value, min_days: +$('#mindays').value,
+                                      as_of: $('#asof').value});
+    rows = j.rows; picked.clear();
+    // если в отчёте всего один договор — отмечаем его сразу, выбирать не из чего
+    if (rows.length === 1) picked.add(keyOf(rows[0]));
+    render();
+    const nd = rows.filter(r=>r.nodata).length, rk = rows.filter(r=>r.risk).length;
+    let html = '';
+    if (j.rate_warning) html += `<div class="notice warn">${esc(j.rate_warning)}</div>`;
+    html += `<div class="notice ok">Найдено ${plural(rows.length,'договор','договора','договоров')} с просрочкой, долг ${money(j.total_debt)} руб.</div>`;
+    if (nd) html += `<div class="notice warn">У ${plural(nd,'договора','договоров','договоров')} не заполнены реквизиты покупателя — в документе останется заглушка «ЗАПОЛНИТЬ реквизиты». Дозаполните data/contragents.csv.</div>`;
+    if (rk) html += `<div class="notice err">По ${plural(rk,'договору','договорам','договорам')} просрочка больше 3 лет — срок исковой давности мог истечь. Иск подавать только после консультации с юристом.</div>`;
+    const rd = rows.filter(r=>r.ready).length;
+    if (rd) html += `<div class="notice ok">По ${plural(rd,'договору','договорам','договорам')} срок ответа на претензию истёк, оплаты нет — можно готовить иск. Фильтр «Готовы к иску».</div>`;
+    $('#loadmsg').innerHTML = html;
+    fillPayRow();
+    loadPayments();
+  }catch(e){
+    $('#loadmsg').innerHTML = `<div class="notice err">${esc(e.message)}</div>`;
+  }
+  btn.disabled = false; btn.textContent = 'Показать должников';
+}
+
+function modal(title, bodyHtml, footHtml){
+  $('#mtitle').textContent = title;
+  $('#mbody').innerHTML = bodyHtml;
+  $('#mfoot').innerHTML = footHtml || '';
+  $('#veil').classList.add('show');
+}
+const closeModal = () => $('#veil').classList.remove('show');
+
+async function generate(mode){
+  const sel = rows.filter(r => picked.has(keyOf(r)));
+  const word = mode === 'pretenzii' ? 'претензии' : 'иски';
+  const risky = sel.filter(r=>r.risk).length, nodata = sel.filter(r=>r.nodata).length;
+
+  if (risky || nodata){
+    let w = '';
+    if (mode === 'iski' && risky)
+      w += `<div class="notice err">По ${plural(risky,'договору','договорам','договорам')} просрочка больше 3 лет — ответчик может заявить о пропуске срока исковой давности, и суд откажет во взыскании целиком.</div>`;
+    if (nodata)
+      w += `<div class="notice warn">У ${plural(nodata,'договора','договоров','договоров')} не заполнены реквизиты покупателя — такие документы отправлять нельзя, сначала дозаполните справочник.</div>`;
+    if (w){
+      modal('Прежде чем продолжить', w,
+        `<button onclick="closeModal()">Отмена</button><button class="primary" id="goon">Всё равно сделать</button>`);
+      $('#goon').onclick = () => { closeModal(); doGenerate(mode, word); };
+      return;
+    }
+  }
+  doGenerate(mode, word);
+}
+
+async function doGenerate(mode, word){
+  modal('Формирую документы',
+        `<div style="display:flex;gap:14px;align-items:center"><div class="spinner"></div>
+         <div>Готовлю ${word}. Обычно это занимает несколько секунд.</div></div>`, '');
+  try{
+    const j = await post('/api/generate', {
+      mode, report: $('#report').value, min_days: +$('#mindays').value,
+      as_of: $('#asof').value,
+      keys: rows.filter(r=>picked.has(keyOf(r))).map(r=>[r.cp, r.contract, r.contract_date]),
+    });
+    const items = j.files.map(f => `<li><span><b>${esc(f.cp)}</b> · договор ${esc(f.contract)}<br>
+        <span class="fname">${esc(f.file)}</span></span>
+        <span class="num" style="white-space:nowrap"><b>${money(f.total)}</b> руб.</span></li>`).join('');
+    modal('Готово',
+      `<div class="notice ok">Сформировано ${j.count} шт. на общую сумму ${money(j.total)} руб.</div>
+       <div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Папка: ${esc(j.dir)}</div>
+       <ul class="filelist">${items}</ul>`,
+      `<button onclick="closeModal()">Закрыть</button>
+       <button class="primary" id="openit">Открыть папку</button>`);
+    $('#openit').onclick = () => { post('/api/open', {path: j.dir}); closeModal(); };
+  }catch(e){
+    modal('Не получилось', `<div class="notice err">${esc(e.message)}</div>`,
+          `<button class="primary" onclick="closeModal()">Закрыть</button>`);
+  }
+}
+
+// ------------------------------------------------------------ обработчики
+$('#load').onclick = load;
+$('#search').oninput = render;
+$('#report').onkeydown = e => { if (e.key === 'Enter') load(); };
+
+$('#pick').onclick = () => $('#file').click();
+$('#file').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const buf = await f.arrayBuffer();
+  let bin = ''; const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  try{
+    const j = await post('/api/upload', {name: f.name, data: btoa(bin)});
+    $('#report').value = j.report; load();
+  }catch(err){ toast(err.message, true); }
+};
+
+$('#all').onclick = e => {
+  const keys = visible().map(keyOf);
+  if (e.target.checked) keys.forEach(k => picked.add(k));
+  else keys.forEach(k => picked.delete(k));
+  render();
+};
+
+for (const [id, val] of [['f-all','all'],['f-clean','clean'],['f-ready','ready'],
+                        ['f-nodata','nodata'],['f-risk','risk']]){
+  $('#'+id).onclick = () => {
+    filter = val;
+    document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.id === id));
+    render();
+  };
+}
+
+document.querySelectorAll('thead th.sortable').forEach(th => {
+  th.onclick = () => {
+    const k = th.dataset.k;
+    sortRev = (sortKey === k) ? !sortRev : false;
+    sortKey = k;
+    rows.sort((a,b) => {
+      const x = a[k], y = b[k];
+      const c = (typeof x === 'number') ? x - y : String(x).localeCompare(String(y), 'ru');
+      return sortRev ? -c : c;
+    });
+    render();
+  };
+});
+
+$('#mkpret').onclick = () => generate('pretenzii');
+$('#mkisk').onclick  = () => generate('iski');
+// ---------------- частичные оплаты ----------------
+function fillPayRow(){
+  const sel = $('#payrow');
+  sel.innerHTML = rows.map((r, i) =>
+    `<option value="${i}">${esc(r.cp)} — ${esc(r.contract)}</option>`).join('');
+  fillPayDoc();
+}
+function fillPayDoc(){
+  const r = rows[+$('#payrow').value];
+  const list = (r && r.invoices) || [];
+  $('#paydoc').innerHTML = list.map(d =>
+    `<option value="${esc(d.number)}">№ ${esc(d.number)} от ${esc(d.date)} — ${money(d.amount)}</option>`
+  ).join('') || '<option value="">нет накладных</option>';
+}
+
+async function loadPayments(){
+  try{
+    const j = await post('/api/payments', {});
+    const list = j.payments || [];
+    if (!list.length){ $('#paylist').innerHTML = ''; return; }
+
+    const row = (p) => `
+      <li>
+        <span><b>${esc(p['Контрагент'])}</b> · ${esc(p['Договор'])} · накл. ${esc(p['Накладная'])}<br>
+          <span class="fname">${esc(p['Дата_оплаты'])}${p['Номер_ПП'] ? ' · п/п №' + esc(p['Номер_ПП']) : ''}</span></span>
+        <span style="white-space:nowrap"><b>${money(p['Сумма'])}</b> руб.
+          <button class="linklike" data-del="${p.i}">удалить</button></span>
+      </li>`;
+
+    // Оплата участвует в расчёте, только если её накладная есть в загруженном
+    // отчёте. Дата договора в записи необязательна — как и в payments.for_line.
+    const inReport = (p) => rows.some(r =>
+      r.cp === p['Контрагент'] && r.contract === p['Договор'] &&
+      (!p['Дата_договора'] || p['Дата_договора'] === r.contract_date) &&
+      (r.invoices || []).some(d => d.number === p['Накладная']));
+
+    if (!rows.length){
+      $('#paylist').innerHTML = `<ul class="filelist">${list.map(row).join('')}</ul>`;
+    } else {
+      const mine = list.filter(inReport), alien = list.filter(p => !inReport(p));
+      let html = `<div class="paygrp">
+        <h4>Учтены в расчёте — ${mine.length}</h4>`;
+      html += mine.length
+        ? `<ul class="filelist">${mine.map(row).join('')}</ul>`
+        : `<div class="payempty">По загруженному отчёту оплат не внесено.</div>`;
+      html += `</div>`;
+      if (alien.length){
+        // Свёрнуто: в расчёт эти оплаты не идут, но иногда среди них прячется
+        // опечатка в номере накладной — поэтому доступ на один щелчок.
+        html += `<details class="paygrp alien">
+          <summary>Не относятся к загруженному отчёту — ${alien.length}</summary>
+          <p class="why">Таких накладных в отчёте нет: либо долг уже закрыт,
+             либо при вводе ошиблись в номере накладной. В расчёт не идут.</p>
+          <ul class="filelist">${alien.map(row).join('')}</ul></details>`;
+      }
+      $('#paylist').innerHTML = html;
+    }
+    document.querySelectorAll('#paylist [data-del]').forEach(b => {
+      b.onclick = async () => {
+        try{
+          const r = await post('/api/payment-delete', {i: +b.dataset.del});
+          toast(r.text); loadPayments(); if ($('#report').value) load();
+        }catch(e){ toast(e.message, true); }
+      };
+    });
+  }catch(e){ /* реестр оплат пуст — это нормально */ }
+}
+
+$('#payrow').onchange = fillPayDoc;
+$('#payadd').onclick = async () => {
+  const r = rows[+$('#payrow').value];
+  if (!r){ toast('Сначала загрузите отчёт', true); return; }
+  try{
+    const res = await post('/api/payment-add', {
+      'Контрагент': r.cp, 'Договор': r.contract, 'Дата_договора': r.contract_date,
+      'Накладная': $('#paydoc').value, 'Дата_оплаты': $('#paydate').value,
+      'Сумма': $('#paysum').value, 'Номер_ПП': $('#paypp').value,
+      'Назначение': $('#paypurpose').value,
+    });
+    $('#paymsg').innerHTML = `<div class="notice ok">${esc(res.text)}</div>`;
+    $('#paysum').value = ''; $('#paypp').value = ''; $('#paypurpose').value = '';
+    loadPayments();
+    if ($('#report').value) load();
+  }catch(e){
+    $('#paymsg').innerHTML = `<div class="notice err">${esc(e.message)}</div>`;
+  }
+};
+
+// ---------------- реквизиты из договора ----------------
+const REQ_FIELDS = [
+  ['Полное_наименование', 'Полное наименование'],
+  ['УНП', 'УНП'],
+  ['Юр_адрес', 'Юридический адрес'],
+  ['Расчетный_счет', 'Расчётный счёт'],
+  ['Банк', 'Банк'],
+  ['Код_банка', 'Код банка (SWIFT)'],
+  ['Телефон', 'Телефон'],
+  ['Директор_ФИО', 'Кто подписал'],
+  ['Директор_основание', 'На основании'],
+];
+
+$('#pickcontract').onclick = () => $('#contractfile').click();
+$('#contractfile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  $('#contractmsg').innerHTML = '<div class="notice ok">Читаю договор…</div>';
+  $('#contractform').style.display = 'none';
+  const buf = await f.arrayBuffer(); const bytes = new Uint8Array(buf);
+  let bin = ''; for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  try{
+    const j = await post('/api/contract-parse', {name: f.name, data: btoa(bin)});
+    showContract(j);
+  }catch(err){
+    $('#contractmsg').innerHTML = `<div class="notice err">${esc(err.message)}</div>`;
+  }
+  e.target.value = '';
+};
+
+function showContract(j){
+  const opts = [...new Set([...j.candidates, ...j.empty, ...j.all])]
+    .map(n => `<option value="${esc(n)}"${n === j.candidates[0] ? ' selected' : ''}>${esc(n)}</option>`).join('')
+    + `<option value="__new__"${j.candidates.length ? '' : ' selected'}>＋ новый контрагент (нет в отчёте)</option>`;
+  const rows = REQ_FIELDS.map(([key, label]) => `
+    <div class="field" style="min-width:280px;flex:1">
+      <label>${label}</label>
+      <input type="text" data-k="${key}" value="${esc(j.fields[key] || '')}">
+    </div>`).join('');
+  $('#contractmsg').innerHTML = j.found >= 4
+    ? `<div class="notice ok">Из файла «${esc(j.file)}» распознано полей: ${j.found} из 9. Проверьте и сохраните.</div>`
+    : `<div class="notice warn">Из файла «${esc(j.file)}» удалось распознать только ${j.found} из 9 полей — договор нетиповой. Дозаполните вручную.</div>`;
+  $('#contractform').innerHTML = `
+    <div class="row">
+      <div class="field" style="min-width:320px">
+        <label>Кому записать (контрагент из справочника)</label>
+        <select id="cpsel" style="font:inherit;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink)">${opts}</select>
+      </div>
+      <div class="field" id="newcpbox" style="min-width:260px;display:none">
+        <label>Короткое имя, как будет в отчёте 1С</label>
+        <input type="text" id="newcp" placeholder="например: Химремонт">
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">${rows}</div>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="savereq">Записать в справочник</button>
+      <button id="cancelreq">Отмена</button>
+    </div>`;
+  $('#contractform').style.display = 'block';
+
+  const syncNew = () => { $('#newcpbox').style.display = $('#cpsel').value === '__new__' ? '' : 'none'; };
+  $('#cpsel').onchange = syncNew; syncNew();
+  $('#cancelreq').onclick = () => {
+    $('#contractform').style.display = 'none';
+    $('#contractmsg').innerHTML = '';
+  };
+  $('#savereq').onclick = async () => {
+    const fields = {};
+    document.querySelectorAll('#contractform input[data-k]').forEach(i => fields[i.dataset.k] = i.value);
+    const isNew = $('#cpsel').value === '__new__';
+    const cpName = isNew ? $('#newcp').value.trim() : $('#cpsel').value;
+    if (isNew && !cpName){ toast('Укажите короткое имя нового контрагента', true); return; }
+    try{
+      const r = await post('/api/contract-save', {counterparty: cpName, fields, create: isNew});
+      $('#contractform').style.display = 'none';
+      $('#contractmsg').innerHTML = `<div class="notice ok">${esc(r.text)} Контрагент: ${esc(cpName)}${isNew ? ' (заведён новый)' : ''}</div>`;
+      toast(r.text);
+      if ($('#report').value) load();
+    }catch(err){ toast(err.message, true); }
+  };
+}
+
+$('#uprate').onclick = async () => {
+  const b = $('#uprate'); const was = b.textContent;
+  b.disabled = true; b.textContent = 'Проверяю…';
+  try{
+    const j = await post('/api/update-rate', {});
+    toast(j.text, !j.ok);
+    if (j.added && $('#report').value) load();
+  }catch(e){ toast(e.message, true); }
+  b.disabled = false; b.textContent = was;
+};
+
+$('#marksent').onclick = () => {
+  const sel = rows.filter(r => picked.has(keyOf(r)));
+  if (!sel.length){ toast('Сначала отметьте договоры в списке', true); return; }
+  const today = $('#asof').value;
+  modal('Отметить претензии отправленными',
+    `<p style="margin:0 0 14px">Отмечено ${plural(sel.length,'договор','договора','договоров')}.
+      Дата отправки пойдёт в реестр, от неё считается 10-дневный срок ответа.</p>
+     <label for="sentdate">Дата отправки</label>
+     <input type="text" id="sentdate" value="${esc(today)}" style="width:160px;margin-top:6px">`,
+    `<button onclick="closeModal()">Отмена</button><button class="primary" id="dosent">Отметить</button>`);
+  $('#dosent').onclick = async () => {
+    try{
+      const j = await post('/api/mark-sent', {
+        date: $('#sentdate').value,
+        keys: sel.map(r => [r.cp, r.contract, r.contract_date]),
+      });
+      closeModal();
+      toast(`Отмечено ${j.count}. Срок ответа истекает ${j.deadline}`);
+      load();
+    }catch(e){ toast(e.message, true); }
+  };
+};
+$('#openfolder').onclick = () => post('/api/open', {});
+$('#veil').onclick = e => { if (e.target === $('#veil')) closeModal(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ------------------------------------------------------------------ старт
+// Дата расчёта и «просрочка от» помнятся между перезагрузками страницы —
+// иначе после F5 дата тихо возвращалась к сегодняшней.
+let TODAY = '';
+function remember(){
+  try{ localStorage.setItem('asof', $('#asof').value.trim());
+       localStorage.setItem('mindays', $('#mindays').value); }catch(e){}
+}
+function asofHint(){
+  const h = $('#asofhint'), v = $('#asof').value.trim();
+  if (!TODAY || !v || v === TODAY){ h.style.display = 'none'; h.innerHTML = ''; return; }
+  h.style.display = 'block';
+  h.innerHTML = `Не сегодняшняя дата — документы будут на ${esc(v)}.
+    <a href="#" id="asoftoday" style="color:inherit">Поставить сегодня</a>`;
+  $('#asoftoday').onclick = e => { e.preventDefault(); $('#asof').value = TODAY; remember(); asofHint(); };
+}
+$('#asof').addEventListener('input', () => { remember(); asofHint(); });
+$('#mindays').addEventListener('input', remember);
+
+fetch('/api/start').then(r => r.json()).then(j => {
+  TODAY = j.today;
+  let saved = '', savedDays = '';
+  try{ saved = localStorage.getItem('asof') || ''; savedDays = localStorage.getItem('mindays') || ''; }catch(e){}
+  $('#asof').value = /^\d{2}\.\d{2}\.\d{4}$/.test(saved) ? saved : j.today;
+  if (+savedDays > 0) $('#mindays').value = savedDays;
+  asofHint();
+  if (j.report){ $('#report').value = j.report; load(); }
+  $('#report').focus();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+pandas>=2.0
+xlrd>=2.0          # старый .xls из 1С
+openpyxl>=3.1
+python-docx>=1.1
+pywin32; sys_platform == "win32"   # необязательно: чтение .doc/.rtf и подсчёт листов через Word
